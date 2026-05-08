@@ -1,1 +1,237 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f4ede0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Briefing">
+<title>The Daily Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,300..900,30..100,0..1&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4ede0;
+    --paper-deep: #ebe1cf;
+    --ink: #1a1614;
+    --ink-soft: #3d3530;
+    --rule: #2a221d;
+    --rule-soft: #b9ac96;
+    --left: #b3271d;
+    --right: #1d3557;
+    --accent: #8a6f3c;
+    --hl: rgba(180, 150, 95, 0.18);
+  }
+  [data-theme="dark"] {
+    --paper: #15110d;
+    --paper-deep: #1f1a14;
+    --ink: #ebe1cf;
+    --ink-soft: #b9ac96;
+    --rule: #b9ac96;
+    --rule-soft: #4a4035;
+    --left: #e8736b;
+    --right: #6f9bd8;
+    --accent: #d4b573;
+    --hl: rgba(212, 181, 115, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.55;
+    font-weight: 380;
+    transition: background 0.4s ease, color 0.4s ease;
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    opacity: 0.35; mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0 0.06 0 0 0 0.18 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  [data-theme="dark"] body::before { mix-blend-mode: screen; opacity: 0.15; }
 
+  .wrap { max-width: 920px; margin: 0 auto; padding: 18px 16px 80px; position: relative; z-index: 2; }
+
+  .masthead { text-align: center; border-top: 3px double var(--rule); border-bottom: 1px solid var(--rule); padding: 14px 0 10px; position: relative; }
+  .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+  h1.title { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: clamp(34px, 9vw, 60px); line-height: 0.95; letter-spacing: -0.02em; font-variation-settings: "SOFT" 30, "WONK" 1, "opsz" 144; font-style: italic; }
+  h1.title .amp { font-weight: 300; color: var(--accent); font-variation-settings: "SOFT" 100, "WONK" 1; }
+  .dateline { margin-top: 6px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--ink-soft); }
+  .dateline span { color: var(--ink); }
+  .theme-toggle { margin-top: 8px; background: transparent; border: 1px solid var(--rule-soft); color: var(--ink-soft); padding: 4px 9px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; }
+
+  .tabs { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--rule); position: sticky; top: 0; background: var(--paper); z-index: 50; }
+  .tab { background: transparent; border: none; border-right: 1px solid var(--rule-soft); padding: 11px 4px 9px; cursor: pointer; text-align: center; color: var(--ink-soft); transition: all 0.25s; position: relative; font-family: inherit; }
+  .tab:last-child { border-right: none; }
+  .tab.active { color: var(--ink); background: var(--paper-deep); }
+  .tab.active::after { content: ""; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: var(--accent); }
+  .tab-title { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 14px; font-weight: 500; line-height: 1; font-variation-settings: "SOFT" 30; display: block; }
+  .tab-meta { display: block; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; }
+
+  .page { display: none; padding: 20px 0 0; animation: fadeIn 0.4s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .page-intro { border-bottom: 1px solid var(--rule); padding-bottom: 12px; margin-bottom: 18px; }
+  .page-intro h2 { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 400; font-size: 28px; letter-spacing: -0.01em; font-variation-settings: "SOFT" 50, "WONK" 1; margin-bottom: 4px; }
+  .page-intro p { color: var(--ink-soft); font-size: 13px; font-style: italic; }
+
+  .filters { display: flex; gap: 6px; margin: 0 0 14px; align-items: center; flex-wrap: wrap; }
+  .filter-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-right: 2px; }
+  .filter-btn { background: transparent; border: 1px solid var(--rule-soft); color: var(--ink-soft); padding: 4px 9px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; }
+  .filter-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+  .spotlight { margin: 0 0 18px; padding: 18px 18px; background: var(--paper-deep); border-left: 4px solid var(--accent); }
+  .spotlight-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+  .spotlight-text { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 400; font-size: 18px; line-height: 1.25; letter-spacing: -0.005em; font-variation-settings: "SOFT" 50; }
+  .spotlight-source { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); margin-top: 8px; }
+
+  .headlines { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+  .headline { display: grid; grid-template-columns: 44px 1fr 22px; gap: 10px; align-items: baseline; padding: 14px 0; border-bottom: 1px dotted var(--rule-soft); }
+  .headline:last-child { border-bottom: none; }
+  .headline.hidden { display: none; }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; padding: 2px 5px; border: 1px solid var(--ink); text-align: center; background: var(--paper-deep); align-self: start; margin-top: 3px; color: var(--ink); }
+  .tag.world { background: var(--ink); color: var(--paper); }
+  .headline-text { font-family: 'Newsreader', Georgia, serif; font-size: 15px; line-height: 1.4; }
+  .headline-source { display: block; font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.08em; color: var(--ink-soft); margin-top: 5px; text-transform: uppercase; }
+  .src-count { display: flex; gap: 1.5px; align-self: center; margin-top: 3px; }
+  .src-count i { width: 3px; height: 10px; background: var(--rule-soft); display: block; }
+  .src-count i.on { background: var(--accent); }
+
+  .story { margin-bottom: 16px; border: 1px solid var(--rule-soft); background: var(--paper-deep); overflow: hidden; }
+  .story-head { padding: 14px 14px; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; user-select: none; }
+  .story-num { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 300; font-size: 22px; color: var(--accent); line-height: 1; min-width: 26px; font-variation-settings: "SOFT" 100; }
+  .story-title-wrap { flex: 1; }
+  .story-title { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 16px; line-height: 1.2; letter-spacing: -0.01em; font-variation-settings: "SOFT" 30; margin-bottom: 5px; }
+  .story-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .flag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; padding: 2px 5px; background: #c8102e; color: white; }
+  .meta-pill { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); }
+  .toggle-icon { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: var(--accent); margin-top: 0; transition: transform 0.3s ease; line-height: 1; }
+  .story.open .toggle-icon { transform: rotate(45deg); }
+  .story-body { display: none; }
+  .story.open .story-body { display: block; animation: fadeIn 0.3s ease; }
+  .story-body-inner { padding: 0 14px 14px; border-top: 1px solid var(--rule-soft); }
+  .story-section { padding: 12px 0; border-bottom: 1px dotted var(--rule-soft); }
+  .story-section:last-child { border-bottom: none; }
+  .story-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 5px; }
+  .story-section.left .story-label { color: var(--left); }
+  .story-section.right .story-label { color: var(--right); }
+  .story-section.verify .story-label { color: var(--accent); }
+  .story-section.left { border-left: 2px solid var(--left); padding-left: 10px; margin-left: -12px; }
+  .story-section.right { border-left: 2px solid var(--right); padding-left: 10px; margin-left: -12px; }
+  .story-section p { font-size: 14px; line-height: 1.5; text-align: left; }
+  .story-section em { color: var(--ink-soft); font-size: 12px; }
+
+  .deepdive { margin: 0 0 24px; padding: 22px 16px; background: var(--paper-deep); border: 1px solid var(--rule-soft); position: relative; }
+  .deepdive::before { content: ""; position: absolute; top: -1px; left: -1px; right: -1px; height: 4px; background: linear-gradient(90deg, var(--left), var(--accent), var(--right)); }
+  .deepdive-num { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-weight: 300; font-size: 13px; color: var(--ink-soft); margin-bottom: 4px; }
+  .deepdive-title { font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-style: italic; font-size: 22px; line-height: 1.15; margin-bottom: 16px; font-variation-settings: "SOFT" 50, "WONK" 1; }
+  .deepdive h4 { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--accent); margin: 20px 0 10px; padding-bottom: 5px; border-bottom: 1px solid var(--rule-soft); }
+  .deepdive p { margin-bottom: 10px; font-size: 15px; line-height: 1.55; }
+  .deepdive ul { list-style: none; padding: 0; margin: 8px 0; }
+  .deepdive li { padding: 8px 0 8px 16px; border-bottom: 1px dotted var(--rule-soft); position: relative; font-size: 14px; line-height: 1.5; }
+  .deepdive li:last-child { border-bottom: none; }
+  .deepdive li::before { content: "—"; position: absolute; left: 0; color: var(--accent); }
+  .deepdive li strong { font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-style: italic; font-variation-settings: "SOFT" 30; }
+  .spectrum-row { padding: 10px 0; border-bottom: 1px dotted var(--rule-soft); font-size: 14px; line-height: 1.5; }
+  .spectrum-row:last-child { border-bottom: none; }
+  .spectrum-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 4px; }
+  .deepdive-nav { position: sticky; top: 50px; margin-bottom: 14px; display: flex; flex-wrap: wrap; gap: 4px; padding: 6px; background: var(--paper); border: 1px solid var(--rule-soft); z-index: 10; }
+  .deepdive-nav button { flex: 1; min-width: 30%; background: transparent; border: none; padding: 6px 6px; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); cursor: pointer; text-align: left; }
+  .deepdive-nav button.active { background: var(--ink); color: var(--paper); }
+
+  .calendar { display: flex; flex-direction: column; }
+  .cal-day { display: grid; grid-template-columns: 70px 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--rule-soft); }
+  .cal-day:last-child { border-bottom: none; }
+  .cal-day.hidden { display: none; }
+  .cal-date { text-align: right; border-right: 1px solid var(--rule-soft); padding-right: 10px; }
+  .cal-day.urgent .cal-date { border-right-color: var(--left); }
+  .cal-dayname { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 2px; }
+  .cal-num { font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 28px; font-weight: 300; line-height: 1; color: var(--ink); font-variation-settings: "SOFT" 80, "WONK" 1; }
+  .cal-day.urgent .cal-num { color: var(--left); }
+  .cal-month { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-soft); margin-top: 3px; }
+  .cal-events { display: flex; flex-direction: column; gap: 8px; }
+  .cal-event { padding-left: 10px; border-left: 2px solid var(--rule-soft); }
+  .cal-event.uk { border-left-color: var(--accent); }
+  .cal-event.world { border-left-color: var(--right); }
+  .cal-event.markets { border-left-color: var(--left); }
+  .cal-event.hidden { display: none; }
+  .cal-event-cat { font-family: 'JetBrains Mono', monospace; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 2px; }
+  .cal-event-text { font-family: 'Newsreader', Georgia, serif; font-size: 14px; line-height: 1.35; }
+
+  .colophon { margin-top: 40px; padding-top: 18px; border-top: 3px double var(--rule); text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft); line-height: 1.8; }
+
+  @media (min-width: 720px) {
+    .wrap { padding: 28px 32px 100px; }
+    body { font-size: 18px; }
+    .tab { padding: 16px 10px 14px; }
+    .tab-title { font-size: 17px; }
+    .tab-meta { display: block; font-size: 9px; }
+    .headline { grid-template-columns: 60px 1fr auto; gap: 18px; padding: 18px 0; }
+    .headline-text { font-size: 17px; }
+    .src-count i { width: 4px; height: 13px; }
+    .spotlight-text { font-size: 24px; }
+    .story-head { padding: 20px 24px; gap: 18px; }
+    .story-num { font-size: 26px; min-width: 36px; }
+    .story-title { font-size: 20px; }
+    .story-body-inner { padding: 0 24px 22px; }
+    .story-section { display: grid; grid-template-columns: 110px 1fr; gap: 22px; }
+    .story-section.left, .story-section.right { margin-left: -16px; padding-left: 14px; }
+    .deepdive { padding: 32px 28px; }
+    .deepdive-title { font-size: 28px; }
+    .spectrum-row { display: grid; grid-template-columns: 130px 1fr; gap: 18px; }
+    .cal-day { grid-template-columns: 120px 1fr; gap: 22px; }
+    .cal-num { font-size: 36px; }
+    .deepdive-nav { top: 76px; }
+  }
+</style>
+</head>
+<body data-theme="light">
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Vol. I · No. 3 · Personal Edition</div>
+    <h1 class="title">The Daily <span class="amp">&amp;</span> Briefing</h1>
+    <div class="dateline">Friday <span>·</span> 8 May 2026 <span>·</span> Manchester</div>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">◐ Dark mode</button>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-page="headlines"><span class="tab-title">Headlines</span><span class="tab-meta">≈ 30 sec</span></button>
+    <button class="tab" data-page="briefing"><span class="tab-title">The Briefing</span><span class="tab-meta">≈ 5 min</span></button>
+    <button class="tab" data-page="deepdive"><span class="tab-title">Deep Dive</span><span class="tab-meta">≈ 30 min</span></button>
+    <button class="tab" data-page="next"><span class="tab-title">What's Next</span><span class="tab-meta">Calendar</span></button>
+  </nav>
+
+  <!-- HEADLINES -->
+  <section class="page active" id="page-headlines">
+    <div class="page-intro"><h2>Headlines</h2><p>The day in one paragraph each. Pure facts only.</p></div>
+
+    <div class="spotlight">
+      <div class="spotlight-label">— Top story —</div>
+      <div class="spotlight-text">Welsh First Minister Eluned Morgan loses her seat — first sitting head of UK government in history to do so — and resigns. Plaid Cymru projected to top the Senedd. Reform sweeps Sunderland, Newcastle and Gateshead. Starmer rejects calls to quit; Burnham pulls his keynote.</div>
+      <div class="spotlight-source">ITV Cymru · BBC · Reuters · NBC · 8 May</div>
+    </div>
+
+    <div class="filters">
+      <span class="filter-label">Filter</span>
+      <button class="filter-btn active" data-filter="all">All · 10</button>
+      <button class="filter-btn" data-filter="UK">UK · 6</button>
+      <button class="filter-btn" data-filter="WORLD">World · 4</button>
+    </div>
+
+    <div class="headlines">
+      <div class="headline" data-region="UK"><div class="tag">UK</div><div class="headline-text">Welsh First Minister Eluned Morgan loses her seat in Ceredigion Penfro — first sitting head of UK government ever to lose office in a vote — and resigns as Welsh Labour leader.<span class="headline-source">ITV Cymru · BBC · Reuters · 8 May</span></div><div class="src-count"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
+      <div class="headline" data-region="UK"><div class="tag">UK</div><div class="headline-text">Plaid Cymru projected to be largest party in the Senedd; Reform UK in second; Welsh Labour collapses from 30 seats to around 10 after 27 unbroken years in power.<span class="headline-source">ITV Cymru · Nation Cymru · BBC</span></div><div class="src-count"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+      <div class="headline" data-region="UK"><div class="tag">UK</div><div class="headline-text">Reform UK wins outright control of Sunderland with 58 of 72 seats — Labour's since the 1970s. Labour leaders in Newcastle and Gateshead also lose seats to Reform.<span class="headline-source">ITV Tyne Tees · NBC · LGC</span></div><div class="src-count"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div></div>
+      <div class="headline" data-region="UK"><div class="tag">UK</div><div class="headline-text">The Greens win their first ever directly elected mayoralties — Hackney and Lewisham — and pick up seats across inner London. Reform falls one short of majority on Isle of Wight.<span class="headline-source">LGC · Guardian · BBC</span></div><div class="src-count"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div></div>
+      <div class="headline" data-region="UK"><div class="tag">UK</div><div class="headline-text">Starmer calls results "really tough" but rejects calls to quit; Burnham pulls out of keynote speech; Rayner allies say she now has the 81 MPs needed for a leadership challenge.<span class="headline-source">ITV · Guardian · CNBC · Telegraph</span></div><div class="src-count"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
+      <div class="headline" data-region="UK"><div class="tag">UK</div><div class="headline-t
